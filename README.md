@@ -17,6 +17,7 @@ that autoloads the scripts in your `~/.bashrc.d` folder and an autocomplete scri
 ## How it looks ##
 
 I present you the **christmas tree configuration** in all its glory!
+
 ![christmas tree configuration](http://i.imgur.com/FVyP92k.png "X-mas tree bash prompt") 
 
 All the colors, paths and prompt elements, are easily configurable.
@@ -39,8 +40,7 @@ The circles have the following meaning
 
 ## TODO ##
 
-- [x] alert when your repository is not synced with the remote origin
+
+- [X] alert when your repository is not synced with the remote origin
 - [ ] create different prompts for users and root (root username and # are gonna be red, so you know you're running as root)
-- [ ] different warnings for repositories that are ahead or behind the remote origin.Maybe an up arrow (↑) when commits are waiting to be pushed and a down one (↓) when you need to pull.
-
-
+- [ ] different warnings for repositories that are ahead or behind the remote origin.Maybe an up arrow (↑) when commits are waiting to be pushed and a down one (↓) when you need to pull.  
