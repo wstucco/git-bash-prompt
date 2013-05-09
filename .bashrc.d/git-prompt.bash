@@ -1,7 +1,10 @@
 # set git executable path
 GIT="/usr/bin/git"
 
-[[ -x $GIT ]] || echo "Error: git was not found or is not executable" 1>&2 && return
+[[ -x $GIT ]] || {
+  echo "Error: git was not found or is not executable" 1>&2 
+  return
+}
 
 function parse_git_prompt {
 
