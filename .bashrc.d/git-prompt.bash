@@ -6,7 +6,7 @@ GIT="/usr/bin/git"
   return
 }
 
-function parse_git_prompt {
+function build_git_ptompt {
 
   local GIT_IS_WORKING_TREE="$($GIT rev-parse --is-inside-work-tree 2>/dev/null)";  
 
@@ -14,38 +14,42 @@ function parse_git_prompt {
 
     local GIT_BRANCH=$($GIT branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/');
     local GIT_STATUS=$($GIT status --porcelain 2> /dev/null);
-    local GIT_UNCOMMITTED=$(echo "$GIT_STATUS" | grep "^M" | wc -l);
-    local GIT_UNSTAGED=$(echo "$GIT_STATUS" | grep "^ M" | wc -l);
-    local GIT_UNTRACKED=$(echo "$GIT_STATUS" | grep "^??" | wc -l);
     local GIT_REMOTE=$($GIT remote | grep "^origin")
     local GIT_CLEAN="${LIGHT_GREEN}✔"
     local GIT_WARNING=""
 
 
-    GIT_PROMPT="[${LIGHT_GREEN}";
-    GIT_PROMPT="${GIT_PROMPT}${GIT_BRANCH}";
+    printf "%s" "[${LIGHT_GREEN}"
+    printf "%s" "${GIT_BRANCH}";
 
     # untracked files
-    [[ $GIT_UNTRACKED -gt 0 ]] && GIT_WARNING="${GREEN}●";  
+    [[ "${GIT_STATUS}" = M*  ]] && GIT_WARNING="${GREEN}●";  
     # unstaged files
-    [[ $GIT_UNSTAGED -gt 0 ]] && GIT_WARNING="${GIT_WARNING}${YELLOW}●";  
+    [[ "${GIT_STATUS}" = [[:space:]]M* ]] && GIT_WARNING="${GIT_WARNING}${YELLOW}●";  
     # uncommitted files
-    [[ $GIT_UNCOMMITTED -gt 0 ]] && GIT_WARNING="${GIT_WARNING}${ORANGE}●";  
+    [[ "${GIT_STATUS}" = '??'* ]] && GIT_WARNING="${GIT_WARNING}${ORANGE}●";  
 
     if [ "origin" = "$GIT_REMOTE" ]; then
       local GIT_NEED_PULL=$($GIT rev-list HEAD...origin/master --count);
+      # need a pull from origin or to push
       [[ $GIT_NEED_PULL -gt 0 ]] && GIT_WARNING="${GIT_WARNING}${RED}●";
     fi 
 
     if [ -n "$GIT_WARNING" ]; then
-      GIT_PROMPT="${GIT_PROMPT} ${GIT_WARNING}";
+      printf "%s"  " ${GIT_WARNING}";
     else
-      GIT_PROMPT="${GIT_PROMPT} ${GIT_CLEAN}";
+      printf "%s" " ${GIT_CLEAN}";
     fi
 
-    # need a pull from origin
-    GIT_PROMPT="${GIT_PROMPT}${RESET}]";
+    printf "%s" "${RESET}]";
   fi  
+}
+
+function git_ruby {
+  [[ -s ".rvmrc" ]] && {
+    source ".rvmrc";
+    [[ -n "$environment_id" ]] && printf "[⌘ %s]" "$environment_id"
+  }
 }
 
 function git_prompt() {
@@ -71,19 +75,21 @@ function git_prompt() {
 
   local USERNAME_COLOR="${YELLOW}"
   local DASH_COLOR="${RESET}"  
+  local HOST_COLOR="${GRAY}"
+  local PATH_COLOR="${CYAN}"
 
-  if [ "$(id -u)" -eq 0 ]; then
-    # root here
-    USERNAME_COLOR="${RED}"
-    DASH_COLOR="${RED}"
+  if [ $(id -u) -eq 0 ]; then
+    # root colors are different
+    USERNAME_COLOR="${LIGHT_RED}"
+    DASH_COLOR="${LIGHT_RED}"
+    HOST_COLOR="${GRAY}"
+    PATH_COLOR="${LIGHT_GRAY}"
   fi
 
   local TERM_TITLE='\[\033]0;\u@\h:\w\007\]'  
-  local PROMPT_START="[${USERNAME_COLOR}\u${RESET}][${GRAY}\h:${CYAN}\w${RESET}]"
+  local PROMPT_START="[${USERNAME_COLOR}\u${RESET}][${HOST_COLOR}\h:${PATH_COLOR}\w${RESET}]"
 
-  parse_git_prompt
-
-  export PS1="${TERM_TITLE}${PROMPT_START}${GIT_PROMPT}${DASH_COLOR}\\$ ";
+  export PS1="${TERM_TITLE}${PROMPT_START}$(build_git_ptompt)${DASH_COLOR}\\$ ${RESET}";
 
   unset GIT_PROMPT
 }
