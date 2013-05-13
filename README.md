@@ -42,5 +42,5 @@ The circles have the following meaning
 
 
 - [X] alert when your repository is not synced with the remote origin
-- [ ] create different prompts for users and root (root username and # are gonna be red, so you know you're running as root)
+- [X] create different prompts for users and root (root username and # are gonna be in different colors, so you know you're running as root)
 - [ ] different warnings for repositories that are ahead or behind the remote origin.Maybe an up arrow (↑) when commits are waiting to be pushed and a down one (↓) when you need to pull.  
